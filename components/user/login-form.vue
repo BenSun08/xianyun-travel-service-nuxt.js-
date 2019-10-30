@@ -1,12 +1,12 @@
 <template>
   <div class="login-form">
     <div class="form-container">
-      <el-form :model="loginForm">
-        <el-form-item>
+      <el-form ref="loginForm" :model="loginForm" :rules="loginRules">
+        <el-form-item prop="username">
           <el-input v-model="loginForm.username" placeholder="用户名/手机" />
         </el-form-item>
-        <el-form-item>
-          <el-input v-model="loginForm.password" placeholder="密码" />
+        <el-form-item prop="password">
+          <el-input v-model="loginForm.password" type="password" placeholder="密码" />
         </el-form-item>
         <div class="forget-pwd">
           <nuxt-link to="#">
@@ -28,14 +28,37 @@ export default {
   data () {
     return {
       loginForm: {
-        username: '',
-        password: ''
+        username: '18300000000',
+        password: '123456'
+      },
+      loginRules: {
+        username: [
+          { required: true, message: '请输入手机号码', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
+        ]
       }
     }
   },
   methods: {
     loginHandler () {
-
+      this.$refs.loginForm.validate((valid) => {
+        if (valid) {
+          this.$axios.post('/accounts/login', this.loginForm)
+            .then((rsp) => {
+              this.$message.success('登录成功, 正在跳转至首页...')
+              const userProfile = { ...rsp.data.user, token: rsp.data.token }
+              this.$store.commit('saveUserProfile', userProfile)
+              setTimeout(() => {
+                this.$router.push('/')
+              }, 1000)
+            })
+            .catch((err) => {
+              console.log(err)
+            })
+        }
+      })
     }
   }
 }

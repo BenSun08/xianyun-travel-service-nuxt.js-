@@ -16,7 +16,7 @@
       </div>
       <div class="form-body">
         <login-form v-if="isLogin" />
-        <register-form v-else/>
+        <register-form v-else @tolog="isLogin=true" />
       </div>
     </div>
   </div>

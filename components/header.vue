@@ -31,9 +31,22 @@
             <el-dropdown-item>消息</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
-        <nuxt-link to="user/login-register">
+        <a v-if="!loggedIn" href="/user/login-register">
           登录 / 注册
-        </nuxt-link>
+        </a>
+        <el-dropdown v-else @command="logoutHandler">
+          <span class="el-dropdown-link">
+            <img :src="$axios.defaults.baseURL+userProfile.defaultAvatar.substring(1)" alt="" class="avatar">
+              &nbsp;{{ userProfile.username }}
+            <i class="el-icon-arrow-down el-icon--right" />
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>个人中心</el-dropdown-item>
+            <el-dropdown-item command="logout">
+              退出
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </div>
     </div>
   </div>
@@ -41,7 +54,29 @@
 
 <script>
 export default {
-
+  computed: {
+    loggedIn () {
+      return this.$store.state.loggedIn
+    },
+    userProfile () {
+      return this.$store.state.userProfile
+    }
+  },
+  mounted () {
+    const userProfileStr = localStorage.getItem('xy-user-profile')
+    if (userProfileStr) {
+      const userProfile = JSON.parse(userProfileStr)
+      this.$store.commit('saveUserProfile', userProfile)
+    }
+  },
+  methods: {
+    logoutHandler (command) {
+      if (command === 'logout') {
+        this.$store.commit('removeUserProfile')
+        this.$router.push('/')
+      }
+    }
+  }
 }
 </script>
 
@@ -103,13 +138,32 @@ a{
       }
     }
     .header-right{
+      display: flex;
+      align-items: center;
       >a{
         color: #666666;
         font-size: 14px;
-        padding-left: 3px;
+        padding-left: 12px;
         &:hover{
           color: #409eff;
           text-decoration: underline;
+        }
+      }
+      span.el-dropdown-link{
+        padding-left: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        img.avatar{
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          border: solid 2px #ffffff;
+        }
+        &:hover{
+          img.avatar{
+            border: solid 2px #409eff;
+          }
         }
       }
     }
