@@ -15,7 +15,7 @@
           <nuxt-link to="#/2">
             酒店
           </nuxt-link>
-          <nuxt-link to="#/3">
+          <nuxt-link to="domestic-air-tickets">
             国内机票
           </nuxt-link>
         </div>
@@ -94,6 +94,9 @@ a{
     width: 100%;
     height: 60px;
     background-color: #ffffff;
+    border-bottom: solid 1px #dddddd;
+    outline: #f5f5f5;
+    outline-width: 3px;
   .header-container{
     width: 1000px;
     margin: 0 auto;
