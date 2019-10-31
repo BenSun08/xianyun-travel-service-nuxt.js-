@@ -1,4 +1,4 @@
-一. 首页，登录和注册页
+#一. 首页，登录和注册页
 
 1. 配置less
 2. element-ui 自行选择配置， 为啥export default ()=>{Vue.use(ElementUI)}也行
@@ -6,14 +6,14 @@
 4. 回车<br>
 5. 搜索框的选择，input的placeholder跟着改变
 6. 梯形：
-  transform-origin: bottom left;
-  transform: scale(1.1,1.3) perspective(0.7em) rotateX(2.2deg);
-7. element-UI的form验证自定义规则，写在data里面，return之前， 并且定义的函数只能用箭头函数，否则this不对
+   transform-origin: bottom left;
+   transform: scale(1.1,1.3) perspective(0.7em) rotateX(2.2deg);
+7. element-UI的form验证自定义规则，写在data里面，return之    前， 并且定义的函数只能用箭头函数，否则this不对
    用箭头的时候this只想xue实例， 用function的时候this指向一个对象：
 
 
 
-![image-20191030094117825](./media/this-of-validator.png)
+    ![image-20191030094117825](./media/this-of-validator.png)
 
 8. 解构赋值： 
 
@@ -43,27 +43,27 @@
 
     可以通this.$store中的vuex的actions,其中值得注意的是：
 
-![image-20191030161537414](./media/nuxt-vuex-actions.png)
+    ![image-20191030161537414](./media/nuxt-vuex-actions.png)
 
-而vuex中的actions表明：
+    而vuex中的actions表明：
 
-![vuex-actions](./media/vuex-actions.png)
+    ![vuex-actions](./media/vuex-actions.png)
 
-[Promise相关知识]( https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise )
+    [Promise相关知识]( https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise )
 
-=============================================
+    =============================================
 
-如果在组件内部已经使用axios的promise，可以不用actions, 而使用mutations和commit来实现本地存储
+    如果在组件内部已经使用axios的promise，可以不用actions, 而使用mutations和commit来实现本地存储
 
-问题就是要知道，store可以与客户端进行联系
-
-
-
-11. header怎么知道现在是login还是没有login？通过store里面存储的信息，以及本地存储的信息来判断，当需要复杂的组件件数据的传递时，应立刻想到用vuex（store)
+    问题就是要知道，store可以与客户端进行联系
 
 
 
-二. 国内机票页
+11. header怎么知道现在是login还是没有login？通过store里面存储的信息，以及本地存储的信息     来判断，当需要复杂的组件件数据的  传递时，应立刻想到用vuex（store)
+
+
+
+#二. 国内机票页
 
  1. 令img变为块级元素可以去除下方的margin
 
@@ -73,4 +73,9 @@
     }
     ```
 
-2. 
+2. 数据交换
+   ```js
+   let a = 1
+   let b = 2
+   [a, b] = [b, a]
+   ```

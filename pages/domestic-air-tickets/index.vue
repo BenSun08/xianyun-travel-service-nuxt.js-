@@ -14,14 +14,30 @@
             </div>
             <div class="search-content">
               <div class="search-container">
-                <el-form label-position="right" label-width="100px" :model="flights2Search">
-                  <el-form-item label="出发城市">
-                    <el-input v-model="flights2Search.departCity" placeholder="请搜索出发城市" />
+                <el-form
+                  ref="flightsForm"
+                  label-position="right"
+                  label-width="100px"
+                  :model="flights2Search"
+                  :rules="flightsRules"
+                >
+                  <el-form-item label="出发城市" prop="departCity">
+                    <el-autocomplete
+                      v-model="flights2Search.departCity"
+                      :fetch-suggestions="querySearchAsync"
+                      placeholder="请搜索出发城市"
+                      @select="selectDepart"
+                    />
                   </el-form-item>
-                  <el-form-item label="到达城市">
-                    <el-input v-model="flights2Search.destCity" placeholder="请搜索到达城市" />
+                  <el-form-item label="到达城市" prop="destCity">
+                    <el-autocomplete
+                      v-model="flights2Search.destCity"
+                      :fetch-suggestions="querySearchAsync"
+                      placeholder="请搜索到达城市"
+                      @select="selectDest"
+                    />
                   </el-form-item>
-                  <el-form-item label="出发时间">
+                  <el-form-item label="出发时间" prop="departDate">
                     <el-date-picker v-model="flights2Search.departDate" type="date" style="width:100%" placeholder="2019-10-30" />
                   </el-form-item>
                   <el-form-item>
@@ -31,6 +47,9 @@
                     </el-button>
                   </el-form-item>
                 </el-form>
+                <div class="exchange">
+                  <span @click="exchangeDeaprtDest">换</span>
+                </div>
               </div>
             </div>
           </div>
@@ -52,13 +71,18 @@
           <span>特价机票</span>
         </div>
         <div class="bargain-content">
-          <div v-for="index in 4" :key="index" class="bargain-item">
+          <a
+            v-for="index in 4"
+            :key="index"
+            href="/domestic-air-tickets/flights?departCity=广州&departCode=CAN&destCity=上海&destCode=SHA&departDate=2019-10-08"
+            class="bargain-item"
+          >
             <img :src="bargainImages[index-1]" alt="">
             <div class="description">
               <span>广州-上海</span>
               <span>&yen;699</span>
             </div>
-          </div>
+          </a>
         </div>
       </div>
     </div>
@@ -70,9 +94,22 @@ export default {
   data () {
     return {
       flights2Search: {
-        departCity: '',
-        destCity: '',
+        departCity: '广',
+        departCode: '',
+        destCity: '上',
+        destCode: '',
         departDate: ''
+      },
+      flightsRules: {
+        departCity: [
+          { required: true, message: '请输入出发城市', trigger: 'blur' }
+        ],
+        destCity: [
+          { required: true, message: '请输入到达城市', trigger: 'blur' }
+        ],
+        departDate: [
+          { required: true, message: '请输入出发时间', trigger: 'blur' }
+        ]
       },
       bargainImages: [
         'https://imgsrc.baidu.com/baike/pic/item/a71ea8d3fd1f41340d8f3dec281f95cad0c85ee3.jpg',
@@ -83,8 +120,60 @@ export default {
     }
   },
   methods: {
+    getFormatDate (dateObj) {
+      const year = dateObj.getFullYear()
+      let month = dateObj.getMonth() + 1
+      month = month < 10 ? '0' + month : month
+      let date = dateObj.getDate()
+      date = date < 10 ? '0' + date : date
+      return year + '-' + month + '-' + date
+    },
+    querySearchAsync (queryStr, callback) {
+      if (queryStr.trim()) {
+        this.$axios.get('/airs/city', {
+          params: { name: queryStr }
+        })
+          .then((rsp) => {
+            const citiesList = [...rsp.data.data]
+            console.log(citiesList)
+            const selectList = citiesList.map((element) => {
+              const indexEnd = element.name.indexOf('市')
+              return {
+                value: element.name.substring(0, indexEnd),
+                code: element.sort
+              }
+            })
+            callback(selectList)
+          })
+      }
+    },
+    selectDepart (departCity) {
+      this.flights2Search.departCode = departCity.code
+    },
+    selectDest (destCity) {
+      this.flights2Search.destCode = destCity.code
+    },
+    exchangeDeaprtDest () {
+      [this.flights2Search.departCity, this.flights2Search.destCity] = [this.flights2Search.destCity, this.flights2Search.departCity];
+      [this.flights2Search.departCode, this.flights2Search.destCode] = [this.flights2Search.destCode, this.flights2Search.departCode]
+    },
     searchHandler () {
-
+      this.$refs.flightsForm.validate((valid) => {
+        if (valid) {
+          let queryStr = ''
+          const params = { ...this.flights2Search }
+          params.departDate = this.getFormatDate(params.departDate)
+          for (const key in params) {
+            const tempStr = '&' + key + '=' + params[key]
+            queryStr += tempStr
+          }
+          queryStr = queryStr.substring(1)
+          this.$router.push(`/domestic-air-tickets/flights?${queryStr}`)
+        } else {
+          this.$message.error('请完善搜索信息')
+          return false
+        }
+      })
     }
   }
 }
@@ -136,8 +225,33 @@ img{
           .search-content{
             // padding-bottom: 16px;
             .search-container{
+              position: relative;
               width: 310px;
               padding-top: 16px;
+              .exchange{
+                position: absolute;
+                top: 36px;
+                right: -18px;
+                width: 27px;
+                height: 61px;
+                border: solid 1px #cccccc;
+                border-left: none;
+                span{
+                  position: absolute;
+                  top: 50%;
+                  right: 0;
+                  transform: translate(50%, -50%);
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  width: 20px;
+                  height: 20px;
+                  background-color: #999999;
+                  color: #ffffff;
+                  font-size: 12px;
+                  cursor: pointer;
+                }
+              }
             }
           }
         }
