@@ -135,7 +135,6 @@ export default {
         })
           .then((rsp) => {
             const citiesList = [...rsp.data.data]
-            console.log(citiesList)
             const selectList = citiesList.map((element) => {
               const indexEnd = element.name.indexOf('市')
               return {

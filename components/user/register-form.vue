@@ -80,15 +80,10 @@ export default {
           const { password2, ...data } = this.registerForm
           this.$axios.post('/accounts/register', data)
             .then((rsp) => {
-              console.log(rsp)
               this.$message.success('用户注册成功')
               setTimeout(() => {
                 this.$emit('tolog')
               }, 1000)
-            })
-            .catch((err) => {
-              console.log(err)
-              this.$message.error('用户注册失败')
             })
         } else {
           this.$message.error('提交错误')
@@ -99,10 +94,6 @@ export default {
     sendValidCode () {
       this.$axios.post('/captchas', { tel: this.registerForm.username })
         .then((rsp) => {
-          console.log(rsp)
-        })
-        .catch((err) => {
-          console.log(err)
         })
     }
   }

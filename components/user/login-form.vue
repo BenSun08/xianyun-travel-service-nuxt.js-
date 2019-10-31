@@ -54,9 +54,6 @@ export default {
                 this.$router.push('/')
               }, 1000)
             })
-            .catch((err) => {
-              console.log(err)
-            })
         }
       })
     }

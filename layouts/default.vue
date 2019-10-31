@@ -2,7 +2,7 @@
   <div>
     <xy-header />
     <nuxt />
-    <xy-footer/>
+    <xy-footer />
   </div>
 </template>
 

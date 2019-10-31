@@ -79,3 +79,18 @@
    let b = 2
    [a, b] = [b, a]
    ```
+#三. 机票列表页(/domestic-air-tickets/flights/?...)
+
+1. 组件中的props中如果要较大的对象数据, 在DOM中如果使用该prop里面的数据，会报错说undefined，解决方法：使用watch进行监听
+    ```js
+    watch: {
+        flight: {
+        handler (newVal, oldVal) {
+            if (newVal) { this.hasCreated = true }
+        },
+        deep: true
+        }
+    }
+    ```
+    输出newVal和oldVal会发现，watch只触发了一次，其中oldVal为undefined，newVal为完整的对象，那么只需要监听到flight不是undefined即可进行渲染
+    
