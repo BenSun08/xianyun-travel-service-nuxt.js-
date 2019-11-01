@@ -1,7 +1,7 @@
 <template>
   <div>
     <xy-header />
-    <nuxt />
+    <nuxt v-if="isRouterAlive" />
     <xy-footer />
   </div>
 </template>
@@ -14,6 +14,22 @@ export default {
   components: {
     xyHeader,
     xyFooter
+  },
+  data () {
+    return {
+      isRouterAlive: true
+    }
+  },
+  provide () {
+    return {
+      reload: this.reload
+    }
+  },
+  methods: {
+    reload () {
+      this.isRouterAlive = false
+      this.$nextTick(() => { this.isRouterAlive = true })
+    }
   }
 }
 </script>

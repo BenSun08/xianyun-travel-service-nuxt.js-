@@ -159,15 +159,12 @@ export default {
     searchHandler () {
       this.$refs.flightsForm.validate((valid) => {
         if (valid) {
-          let queryStr = ''
           const params = { ...this.flights2Search }
           params.departDate = this.getFormatDate(params.departDate)
-          for (const key in params) {
-            const tempStr = '&' + key + '=' + params[key]
-            queryStr += tempStr
-          }
-          queryStr = queryStr.substring(1)
-          this.$router.push(`/domestic-air-tickets/flights?${queryStr}`)
+          const history = JSON.parse(localStorage.getItem('xy-flights-history')) || []
+          history.push(params)
+          localStorage.setItem('xy-flights-history', JSON.stringify(history))
+          this.$router.push({ path: '/domestic-air-tickets/flights', query: params })
         } else {
           this.$message.error('请完善搜索信息')
           return false

@@ -79,6 +79,7 @@
    let b = 2
    [a, b] = [b, a]
    ```
+
 #三. 机票列表页(/domestic-air-tickets/flights/?...)
 
 1. 组件中的props中如果要较大的对象数据, 在DOM中如果使用该prop里面的数据，会报错说undefined，解决方法：使用watch进行监听
@@ -93,4 +94,100 @@
     }
     ```
     输出newVal和oldVal会发现，watch只触发了一次，其中oldVal为undefined，newVal为完整的对象，那么只需要监听到flight不是undefined即可进行渲染
-    
+
+2. 两个Date的实例对象可以直接相减，获得两个时间间隔的毫秒数。运算符重载的实现方法：
+    ```js
+    function Test(){
+        let _this = this
+        this.num = 0
+        this.setNumber = n => { _this.num = n }
+        this.toString = () => _this.num
+        //this.valueOf = () => _this.num
+    }
+    let a = new Test()
+    a.setNumber(2)
+    let b = new Test()
+    b.setNUmber(3)
+    //结果a+b=5
+    ```
+    利用了Object里面的prototype: toString或着valueOf和运算符的隐式转换，令对象在隐式转换的时候返回特定的值。
+    MDN对valueOf()的解释：
+    >"JavaScript calls the valueOf method to convert an object to a primitive value."
+
+3. ```html
+    <el-select v-on:click="option=$event.target.placeholdler">
+    ```
+    通过$event可以在html的标签里面获得时间的参数：event
+
+4. pagenation(from element-ui)
+   .sync modifier: vue.js中v-bind的modifier, 作用类似与v-model，令数据进行双向绑定，但是v-model只针对input的value属性，而.sync可以用于任意属性的双向绑定
+
+5. 带query的编程式路由：
+    ```js
+    this.$router.push({
+        path: '/domestic-air-tickets/flights',
+        query: params
+    })
+    ```
+
+6. 数组去重：
+    1. 简单类型的去重：用Set
+    ```js
+    let exDupArr = [ ...new Set(dupArr) ]
+    ```
+    2. 复杂类型数组去重：Array.prototype.reduce()，还有一个hash对象，用于筛选不重复的对象
+    ```js
+    let historySet = []
+    const hash = {}
+    if (historyList.length > 0) {
+    historySet = historyList.reduce((acc, cur) => {
+        const hashKey = cur.departCity + cur.destCity + cur.departDate
+        if (!hash[hashKey]) {
+        hash[hashKey] = true
+        acc.push(cur)
+        }
+        return acc
+    }, [])
+    }
+    ```
+
+7. 路由的path不变，query改变，如何实现组件的刷新？：
+    1. 在跟组件中的<router-view>标签增加v-if
+    ```html
+    <router-view v-if="isRouterAlive" to="..." />
+    ```
+    2. 若为根组件，在methods中定义一个reload方法：
+    ```js
+    export default {
+        data () {
+            return {
+                isRouterAlive = true
+            }
+        },
+        methods: {
+            reload () {
+                this.isRouterAlive = false
+                this.$nextTick(()=>{ this.isRouterAlive = true })
+            }
+        },
+        // 如果不是根组件，则需要用到provide/inject对来进行传递
+        provide () {
+            return {
+                reload: this.reload
+            }
+        }
+    }
+    ```
+    在需要刷新的子组件中，使用方法：
+    ```js
+    // 如果为router-view为根组件：
+    this.$root.reload()
+    // 否则需要inject
+    export default {
+        inject: ['reload']
+        ...
+            this.reload()
+        ...
+    }
+    ```
+

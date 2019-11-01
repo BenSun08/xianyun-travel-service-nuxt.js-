@@ -8,11 +8,11 @@
         <el-select
           v-for="(option,index) in optionsKey"
           :key="option"
-          v-model="filter[option]"
-          clearable
+          v-model="optionsVal[index]"
           :placeholder="optionsName[index]"
           size="mini"
           :data-type="option"
+          @focus="currentSelect=optionsConvert[$event.target.placeholder]"
           @change="filterHandler"
         >
           <el-option
@@ -26,7 +26,7 @@
     </div>
     <div class="flights-filter">
       筛选：
-      <el-button type="primary" plain round size="mini">
+      <el-button type="primary" plain round size="mini" @click="cancelHandler">
         撤销
       </el-button>
     </div>
@@ -52,12 +52,35 @@ export default {
   data () {
     return {
       optionsName: ['起飞机场', '起飞时间', '航空公司', '机型'],
-      optionsKey: ['airport', 'flightTimes', 'company', 'size']
+      optionsKey: ['airport', 'flightTimes', 'company', 'size'],
+      optionsVal: ['', '', '', ''],
+      optionsConvert: {
+        起飞机场: 'org_airport_name',
+        起飞时间: 'dep_time',
+        航空公司: 'airline_name',
+        机型: 'plane_size'
+      },
+      sizeConvert: {
+        大: 'L',
+        中: 'M',
+        小: 'S'
+      },
+      currentSelect: ''
     }
   },
   methods: {
     filterHandler (filterOption) {
-      this.$emit('filter', filterOption)
+      if (this.currentSelect === 'plane_size') {
+        filterOption = this.sizeConvert[filterOption]
+      }
+      this.$emit('filter', {
+        select: this.currentSelect,
+        option: filterOption
+      })
+    },
+    cancelHandler () {
+      this.optionsVal = ['', '', '', '']
+      this.$emit('cancel')
     }
   }
 }
