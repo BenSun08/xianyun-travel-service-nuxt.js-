@@ -190,4 +190,26 @@
         ...
     }
     ```
+#四. 机票选择页(/domestic-air-tickets/order?...)
+
+1. less中样式：
+    ```less
+    div{
+        &.duration{
+            font-size: 12px;
+            color: #999999;
+        }
+    }
+    //等价于
+    div.duration{
+        font-size: 12px;
+        color: #999999;
+    }
+    ```
+2. 令高度div的高度不跟随父级块的高度，而是适应内容高度
+    ```css
+    div{
+        height: fit-content;
+    }
+    ```
 

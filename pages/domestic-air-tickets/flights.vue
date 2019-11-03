@@ -20,7 +20,12 @@
         </div>
         <div v-else class="flights-list">
           <div class="flights-table-body">
-            <flight-item v-for="(flight,index) in pagedFlights" :key="index" :flight="flight" />
+            <flight-item
+              v-for="(flight,index) in pagedFlights"
+              :key="index"
+              :flight="flight"
+              @select-seat="$router.push({ path: '/domestic-air-tickets/order', query: $event})"
+            />
           </div>
           <div class="paginator">
             <el-pagination
@@ -127,13 +132,10 @@ export default {
     }
   },
   mounted () {
-    this.init()
+    this.getAirTicketsList(this.$route.query)
+    this.getHistoryList()
   },
   methods: {
-    init () {
-      this.getAirTicketsList(this.$route.query)
-      this.getHistoryList()
-    },
     getAirTicketsList (params) {
       this.$axios.get('/airs', { params })
         .then((rsp) => {
@@ -156,6 +158,7 @@ export default {
             }
           })
           this.filteredFlights = [...this.flights]
+          console.log(this.flights)
         })
     },
     getHistoryList () {
@@ -198,10 +201,6 @@ export default {
       for (const key in this.filterOptions) {
         this.filterOptions[key] = ''
       }
-    },
-    selectHistory () {
-      this.$router.push(`/domestic-air-tickets/flights?${history.queryStr}`)
-      // this.init()
     }
   }
 }

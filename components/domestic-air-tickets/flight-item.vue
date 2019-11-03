@@ -44,7 +44,14 @@
           <div class="seat-purchase">
             <span class="price">&yen;&nbsp;{{ seat.par_price }}</span>
             <div class="pick-seat">
-              <el-button type="warning" size="mini">
+              <el-button
+                type="warning"
+                size="mini"
+                @click="$emit('select-seat', {
+                  id: flight.id,
+                  seat_xid: seat.seat_xid
+                })"
+              >
                 选定
               </el-button>
               <span>剩余：{{ seat.discount }}</span>
@@ -57,6 +64,8 @@
 </template>
 
 <script>
+import { getDuration } from '@/utils/utils.js'
+
 export default {
   props: {
     flight: {
@@ -71,22 +80,7 @@ export default {
   },
   computed: {
     duration () {
-      const depTime = this.flight.dep_time.split(':')
-      const depHour = depTime[0] - 0
-      const depMinute = depTime[1] - 0
-      const arrTime = this.flight.arr_time.split(':')
-      const arrHour = arrTime[0] - 0
-      const arrMinute = arrTime[1] - 0
-      let duraHour = arrHour - depHour
-      let duraMinute = arrMinute - depMinute
-      if (duraHour < 0) {
-        duraHour += 24
-      }
-      if (duraMinute < 0) {
-        duraMinute += 60
-        duraHour--
-      }
-      return duraHour + '时' + duraMinute + '分'
+      return getDuration(this.flight.dep_time, this.flight.arr_time)
     }
   }
 }
