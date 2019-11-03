@@ -3,7 +3,7 @@
     <div class="pay-container">
       <div class="pay-price">
         <span>支付总金额&nbsp;&nbsp;</span>
-        <span class="price">&yen;1440.00</span>
+        <span class="price">&yen;{{ price }}</span>
       </div>
       <div class="pay-code">
         <div class="code-head">
@@ -11,7 +11,7 @@
         </div>
         <div class="code-body">
           <div class="qrcode">
-            <canvas>
+            <canvas ref="canvas">
               哈哈
             </canvas>
             <p>请使用微信扫一扫</p>
@@ -25,9 +25,43 @@
 </template>
 
 <script>
+import qrcode from 'qrcode'
 export default {
+  data () {
+    return {
+      price: 0,
+      payInfo: {},
+      intervalId: ''
+    }
+  },
   mounted () {
-
+    this.$axios.get(`/airorders/${this.$route.query.id}`)
+      .then((rsp) => {
+        this.price = rsp.data.price
+        this.payInfo = { ...rsp.data.payInfo }
+        qrcode.toCanvas(this.$refs.canvas, this.payInfo.code_url)
+      })
+    this.intervalId = setInterval(() => {
+      this.checkPay()
+    }, 5000)
+  },
+  methods: {
+    checkPay () {
+      this.$axios.post('/airorders/checkpay', {
+        id: this.$route.query.id,
+        nonce_str: this.payInfo.nonce_str,
+        order_no: this.payInfo.order_no
+      })
+        .then((rsp) => {
+          if (rsp.data.trade_state === 'CLOSED') {
+            clearInterval(this.intervalId)
+            this.$message.success('订单支付成功, 正在跳转至首页...')
+            setTimeout(() => {
+              this.$router.push('/')
+            }, 1500)
+          }
+        })
+    }
   }
 }
 </script>
@@ -76,8 +110,8 @@ img{
           justify-content: center;
           align-items: center;
           canvas{
-            width: 200px;
-            height: 200px;
+            width: 200px !important;
+            height: 200px !important;
             margin-bottom: 6px;
           }
           p{

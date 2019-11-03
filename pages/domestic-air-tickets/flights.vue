@@ -158,7 +158,6 @@ export default {
             }
           })
           this.filteredFlights = [...this.flights]
-          console.log(this.flights)
         })
     },
     getHistoryList () {

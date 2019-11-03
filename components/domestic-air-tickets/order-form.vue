@@ -114,7 +114,7 @@ export default {
       },
       contactForm: {
         contactName: 'Tony',
-        contactPhone: '13800138000',
+        contactPhone: '18300000000',
         captcha: '000000',
         invoice: true
       }
