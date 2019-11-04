@@ -213,3 +213,55 @@
     }
     ```
 
+#五. 酒店列表页面(/hotel)
+
+1. element-ui里面的select深坑, label属性和表现内的text可以不同，不同之后的会出现的现象：下拉菜单里面没有"成人"二字，但是选择以后的input内有"成人"儿子
+    ```html
+    <el-select v-model="adultNum" size="mini" @change="selectAdult">
+        <el-option
+            v-for="adult in adultList"
+            :key="adult"
+            :label="adult+'成人'"
+            :value="adult+'成人'"
+        >
+            {{ adult }}
+        </el-option>
+    </el-select>
+    ```
+2. input的readonly属性
+
+3. 人数选择组件，如何令其隐藏？
+
+4. 文本的伸缩：
+    ```css
+    p.hide{
+        overflow: hidden;
+        height: 24px; /*固定值*/
+    }
+    p.show{
+        overflow: visible;
+        height: fit-content;
+    }
+    ```
+
+5. 地图模块，在因为有一个全局的AMap对象，eslint会报错，需要在.eslintrc.js文件中进行配置
+    ```js
+    globals: {
+        AMap: false
+    }
+    ```
+
+6. 使用第三方组件时，如果在CSS中不方便调内部样式,可以用行内样式调内容的样式，来撑大外部组件的大小：
+    ```html
+    <el-dropdown-item>
+    <i class="iconfont iconcircle" />
+    <span style="display:inline-block;width:100px">1星</span>
+    </el-dropdown-item>
+    ```
+7. 设置滚动条：
+    ```CSS
+    ul{
+        height: 250px;
+        overflow: auto;
+    }
+    ```

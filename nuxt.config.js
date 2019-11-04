@@ -23,7 +23,8 @@ export default {
   ** Global CSS
   */
   css: [
-    // '@/assets/main.css',
+    '@/assets/animate.css',
+    '@/assets/font.css',
     'element-ui/lib/theme-chalk/index.css'
   ],
   /*
@@ -33,6 +34,7 @@ export default {
     '@/plugins/route.js',
     '@/plugins/element-ui.js',
     '@/plugins/axios.js'
+    // '@/plugins/vue-amap.js'
   ],
   /*
   ** Nuxt.js dev-modules

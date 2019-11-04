@@ -12,9 +12,9 @@
           <nuxt-link to="#/1">
             旅游攻略
           </nuxt-link>
-          <nuxt-link to="#/2">
+          <a href="/hotel">
             酒店
-          </nuxt-link>
+          </a>
           <a href="/domestic-air-tickets">
             国内机票
           </a>
