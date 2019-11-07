@@ -8,6 +8,7 @@
       <el-slider
         v-model="price"
         :max="4000"
+        @change="$emit('priceslide',price)"
       />
     </div>
     <div v-for="filter in filterOptions" :key="filter.name" class="hotels-star hotels-select">
@@ -56,7 +57,7 @@ export default {
         levels: {
           name: '住宿星级',
           key: 'levels',
-          slug: 'hotellevel',
+          slug: 'hotellevel_in',
           options: [],
           optionsBool: [],
           trueCount: 0,
@@ -67,7 +68,7 @@ export default {
         types: {
           name: '住宿类型',
           key: 'types',
-          slug: 'hoteltype',
+          slug: 'hoteltype_in',
           options: [],
           optionsBool: [],
           trueCount: 0,
@@ -78,7 +79,7 @@ export default {
         assets: {
           name: '酒店设施',
           key: 'assets',
-          slug: 'hotelasset',
+          slug: 'hotelasset_in',
           options: [],
           optionsBool: [],
           trueCount: 0,
@@ -89,7 +90,7 @@ export default {
         brands: {
           name: '酒店品牌',
           key: 'brands',
-          slug: 'hotelbrand',
+          slug: 'hotelbrand_in',
           options: [],
           optionsBool: [],
           trueCount: 0,
@@ -109,7 +110,6 @@ export default {
             return false
           })
         }
-        console.log(this.filterOptions)
       })
   },
   methods: {
@@ -122,28 +122,32 @@ export default {
         }
       }
     },
+    // send filter conditions to father components
     selectOption (command) {
-      const { cKey, index, value, name } = command
-      this.filterOptions[cKey].optionsBool[index] = !this.filterOptions[cKey].optionsBool[index]
-      if (this.filterOptions[cKey].optionsBool[index]) {
-        this.filterOptions[cKey].trueCount++
-        this.filterOptions[cKey].trueList.push(value)
+      const { cKey, index, value, name, sKey } = command
+      const filterList = this.filterOptions[cKey]
+      // change the state of the corresponding option
+      filterList.optionsBool[index] = !filterList.optionsBool[index]
+      if (filterList.optionsBool[index]) {
+        filterList.trueCount++
+        filterList.trueList.push(value)
       } else {
-        this.filterOptions[cKey].trueCount--
-        const removeIndex = this.filterOptions[cKey].trueList.findIndex(element => element === value)
-        this.filterOptions[cKey].trueList.splice(removeIndex, 1)
+        filterList.trueCount--
+        const removeIndex = filterList.trueList.findIndex(element => element === value)
+        filterList.trueList.splice(removeIndex, 1)
       }
-      switch (this.filterOptions[cKey].trueCount) {
+      switch (filterList.trueCount) {
         case 0:
-          this.filterOptions[cKey].value = '不限'
+          filterList.value = '不限'
           break
         case 1:
-          this.filterOptions[cKey].value = name
+          filterList.value = name
           break
         default:
-          this.filterOptions[cKey].value = this.filterOptions[cKey].trueCount + '项'
+          filterList.value = filterList.trueCount + '项'
           break
       }
+      this.$emit('filter', { key: sKey, value: [...filterList.trueList] })
     }
   }
 }

@@ -1,3 +1,5 @@
+[项目的模板模板](http://157.122.54.189:9093/)
+
 #一. 首页，登录和注册页
 
 1. 配置less
@@ -94,6 +96,11 @@
     }
     ```
     输出newVal和oldVal会发现，watch只触发了一次，其中oldVal为undefined，newVal为完整的对象，那么只需要监听到flight不是undefined即可进行渲染
+    
+    //方法二：可以不用watch,只需要判断有长度就可以了
+    ```html
+    <div v-if="Object.keys(hotel).length" class="hotel-item">
+    ```
 
 2. 两个Date的实例对象可以直接相减，获得两个时间间隔的毫秒数。运算符重载的实现方法：
     ```js
@@ -265,3 +272,10 @@
         overflow: auto;
     }
     ```
+
+8. debug过程：
+    组件渲染出现对线的某个属性undifined,有两种可能：（可以利用vue 的dev tool工具观察数据）
+    1. 对象没有加载完, 解决方法：使用watch或者Object.keys(obj)来监听对象是否加载完毕
+    2. 后台返回的数据对象中该属性的上一级属性为null或者undifined,此时需要排查该属性，如果注释某段template后渲染成功，说明在该段出错
+
+9. 高德地图中的web端和web服务区别：

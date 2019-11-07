@@ -15,6 +15,8 @@ module.exports = {
   rules: {
   },
   globals: {
-    'AMap': false
+    'AMap': false,
+    'AMapUI': false,
+    'initAMapUI': false
   }
 }

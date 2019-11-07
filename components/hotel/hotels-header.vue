@@ -3,7 +3,7 @@
     <div class="hotels-breadcrumb">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item>酒店</el-breadcrumb-item>
-        <el-breadcrumb-item>南京市酒店预订</el-breadcrumb-item>
+        <el-breadcrumb-item>{{ selectedCity }}酒店预订</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="search-form">
@@ -13,6 +13,7 @@
             v-model="hotelsForm.destCity"
             placeholder="目的地"
             :fetch-suggestions="querySearchAsync"
+            @select="searchHotels()"
           />
         </el-form-item>
         <el-form-item>
@@ -42,11 +43,11 @@
           </div>
           <div class="content" :class="{ 'show-regions': showRegions }">
             <p>
-              <a class="all-regions" href="javascript:;">全部</a>
+              <a class="all-regions" :href="`/hotel?cityId=${$route.query.cityId}&scene=all`">全部</a>
               <a
                 v-for="(region,index) in cityInfo.regionsList"
                 :key="index"
-                href="javascrpit:;"
+                :href="`/hotel?cityId=${$route.query.cityId}&scene=${region.id}`"
               >
                 {{ region.name }}
               </a>
@@ -102,12 +103,17 @@
 </template>
 
 <script>
-import { AMapManager } from 'vue-amap'
 import peopleInput from '@/components/hotel/people-input.vue'
 
 export default {
   components: {
     peopleInput
+  },
+  props: {
+    markers: {
+      type: Array,
+      default: () => []
+    }
   },
   data () {
     return {
@@ -116,42 +122,19 @@ export default {
         checkInrange: [new Date(2019, 10, 8), new Date(2019, 12, 20)],
         people: ''
       },
+      selectedCity: '南京市',
       cityInfo: {
         regionsList: []
       },
       showRegions: false,
       budgets: ['332', '521', '768'],
-      crowns: [3, 4, 5],
-      hotelsMap: {
-        center: [121.59996, 31.197646],
-        amapManager: new AMapManager(),
-        zoom: 12,
-        events: {
-          init (o) {
-            const marker = new AMap.Marker({
-              position: [121.59996, 31.197646]
-            })
-            marker.setMap(o)
-          }
-        }
-      }
+      crowns: [3, 4, 5]
     }
   },
   mounted () {
     this.searchHotels()
-    window.onLoad = function () {
-      const map = new AMap.Map('map-container', {
-        zoom: 12,
-        center: [116.39, 39.9]
-      })
-      const toolbar = new AMap.ToolBar()
-      map.addControl(toolbar)
-    }
-    const url = 'https://webapi.amap.com/maps?v=1.4.15&key=9df17808d052637121f298edcf593907&callback=onLoad&plugin=AMap.ToolBar'
-    const jsapi = document.createElement('script')
-    jsapi.charset = 'utf-8'
-    jsapi.src = url
-    document.head.appendChild(jsapi)
+    this.loadMarkers()
+    console.log(this.cityInfo)
   },
   methods: {
     querySearchAsync (queryStr, callback) {
@@ -172,14 +155,71 @@ export default {
       }
     },
     searchHotels () {
+      this.selectedCity = this.hotelsForm.destCity
       this.$axios.get('/cities', {
         params: { name: this.hotelsForm.destCity }
       })
         .then((rsp) => {
           this.cityInfo.regionsList = [...rsp.data.data[0].scenics]
           const cityId = rsp.data.data[0].id
+          this.$emit('citychange', cityId)
           this.$router.push({ path: '/hotel', query: { cityId } })
         })
+      this.loadMarkers()
+    },
+    loadMarkers () {
+      const _this = this
+      window.onLoad = function () {
+        let center = [116.39, 39.9]
+        let zoom = 7
+        // calculate the center and zoom dynamically according to the hotels' positions
+        if (_this.markers.length) {
+          const lngList = _this.markers.map((element) => {
+            return element.position[0]
+          })
+          const latList = _this.markers.map((element) => {
+            return element.position[1]
+          })
+          const maxLng = Math.max.apply(null, lngList)
+          const maxLat = Math.max.apply(null, latList)
+          const minLng = Math.min.apply(null, lngList)
+          const minLat = Math.min.apply(null, latList)
+          const distance = AMap.GeometryUtil.distance([maxLng, maxLat], [minLng, minLat])
+          const nowDivLine = Math.sqrt(420 * 420 + 260 * 260)
+          const nowScale = distance / nowDivLine
+          zoom = 16 - Math.ceil(Math.log(nowScale) / Math.log(2))
+          center = [(maxLng + minLng) / 2, (maxLat + minLat) / 2]
+        }
+        const map = new AMap.Map('map-container', {
+          zoom,
+          center
+        })
+        const toolbar = new AMap.ToolBar()
+        map.addControl(toolbar)
+        if (_this.markers.length) {
+          initAMapUI()
+          AMapUI.loadUI(['overlay/SimpleMarker'], function (SimpleMarker) {
+            const markersList = _this.markers.map((element) => {
+              const sMarker = new SimpleMarker(element)
+              sMarker.on('mouseover', function () {
+                map.setCenter(element.position)
+              })
+              return sMarker
+            })
+            map.add(markersList)
+          })
+        }
+      }
+      const url = 'https://webapi.amap.com/maps?v=1.4.15&key=9df17808d052637121f298edcf593907&callback=onLoad&plugin=AMap.ToolBar'
+      const uiurl = 'https://webapi.amap.com/ui/1.0/main-async.js'
+      const jsapi = document.createElement('script')
+      const uiapi = document.createElement('script')
+      jsapi.charset = 'utf-8'
+      uiapi.charset = 'utf-8'
+      jsapi.src = url
+      uiapi.src = uiurl
+      document.head.appendChild(jsapi)
+      document.head.appendChild(uiapi)
     }
   }
 }
@@ -232,18 +272,13 @@ export default {
             height: 42px;
             overflow: hidden;
             a{
-              // color: #666666;
-              // margin-right: 16px;
-              // &.all-regions{
-              //   background-color: #eeeeee;
-              //   color: #999999;
-              // }
+              color: #666666;
+              margin-right: 16px;
               &:link{
                 color: #666666;
               }
               &:visited{
-                background-color: #eeeeee;
-                color: #999999;
+                color: #666666;
               }
               &:hover{
                 color: #0099ff;
